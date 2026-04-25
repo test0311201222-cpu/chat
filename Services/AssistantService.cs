@@ -64,6 +64,7 @@ namespace chat.Services
             memoryService.AppendHistory("user", userMessage);
 
             AssistantResponse response;
+            string failureReason = string.Empty;
 
             if (openAiService.IsConfigured())
             {
@@ -87,15 +88,16 @@ namespace chat.Services
                         return response;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    failureReason = SummarizeApiError(ex.Message);
                 }
             }
 
             response = new AssistantResponse
             {
                 Text = BuildOfflineResponse(userMessage, mode, memory),
-                Source = "Base local",
+                Source = failureReason == string.Empty ? "Base local" : "Base local (OpenAI indisponivel: " + failureReason + ")",
                 IsOnline = false
             };
 
@@ -292,6 +294,38 @@ namespace chat.Services
             };
 
             return ideas[random.Next(ideas.Length)];
+        }
+
+        private string SummarizeApiError(string message)
+        {
+            string text = (message ?? string.Empty).ToLowerInvariant();
+
+            if (text.Contains("insufficient_quota"))
+            {
+                return "sem quota ou billing";
+            }
+
+            if (text.Contains("429"))
+            {
+                return "limite de requisicoes";
+            }
+
+            if (text.Contains("401") || text.Contains("unauthorized"))
+            {
+                return "api key invalida";
+            }
+
+            if (text.Contains("404"))
+            {
+                return "endpoint ou modelo nao encontrado";
+            }
+
+            if (text.Contains("timeout"))
+            {
+                return "tempo esgotado";
+            }
+
+            return "falha de conexao";
         }
     }
 }
