@@ -14,6 +14,7 @@ namespace chat
         private readonly AssistantService assistantService;
         private AssistantMemory memory;
         private AppSettings settings;
+        private AssistantProfile profile;
         private List<KnowledgeItem> knowledgeItems = new List<KnowledgeItem>();
         private bool temaClaro = true;
 
@@ -36,7 +37,11 @@ namespace chat
 
             memory = assistantService.LoadMemory();
             settings = assistantService.LoadSettings();
+            profile = assistantService.LoadProfile();
             knowledgeItems = assistantService.LoadKnowledge();
+
+            Text = profile.Name;
+            lblTitulo.Text = profile.Name;
 
             int modeIndex = cboModo.Items.IndexOf(memory.LastMode);
             cboModo.SelectedIndex = modeIndex >= 0 ? modeIndex : 0;
@@ -47,14 +52,14 @@ namespace chat
 
             RecarregarListaConhecimento();
 
-            AdicionarMensagem("Codex Local", "Assistente iniciado.");
-            AdicionarMensagem("Codex Local", assistantService.IsOnlineConfigured()
+            AdicionarMensagem(profile.Name, "Assistente iniciado.");
+            AdicionarMensagem(profile.Name, assistantService.IsOnlineConfigured()
                 ? "Modo online disponivel. Respostas podem usar IA online junto com memoria e base local."
                 : "Modo local ativo. Abra Configuracao para colar sua API key sem sair do app.");
 
             if (!string.IsNullOrWhiteSpace(memory.UserName) && memory.UserName != "amigo")
             {
-                AdicionarMensagem("Codex Local", "Bem-vindo de volta, " + memory.UserName + ".");
+                AdicionarMensagem(profile.Name, "Bem-vindo de volta, " + memory.UserName + ".");
             }
 
             AtualizarStatusInicial();
@@ -86,7 +91,7 @@ namespace chat
         {
             rtbConversa.Clear();
             assistantService.ClearConversation();
-            AdicionarMensagem("Codex Local", "Historico limpo. Podemos recomecar.");
+            AdicionarMensagem(profile.Name, "Historico limpo. Podemos recomecar.");
             lblStatus.Text = "Conversa local apagada.";
             txtMensagem.Clear();
             txtMensagem.Focus();
@@ -164,7 +169,7 @@ namespace chat
             memory.LastMode = cboModo.Text;
             assistantService.SaveMemory(memory);
 
-            AdicionarMensagem("Codex Local", resposta.Text + Environment.NewLine + "[fonte: " + resposta.Source + "]");
+            AdicionarMensagem(profile.Name, resposta.Text + Environment.NewLine + "[fonte: " + resposta.Source + "]");
             lblStatus.Text = resposta.IsOnline
                 ? "Resposta online recebida em " + DateTime.Now.ToString("HH:mm")
                 : "Resposta local recebida em " + DateTime.Now.ToString("HH:mm");
@@ -298,7 +303,7 @@ namespace chat
             settings.OpenAiModel = txtModelo.Text.Trim() == "" ? "gpt-5-mini" : txtModelo.Text.Trim();
             assistantService.SaveSettings(settings);
             AtualizarStatusInicial();
-            MessageBox.Show("Configuracao salva.", "Codex Local");
+            MessageBox.Show("Configuracao salva.", profile.Name);
         }
 
         private void AplicarTemaClaro()
