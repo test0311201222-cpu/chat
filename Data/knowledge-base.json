@@ -1,0 +1,38 @@
+[
+  {
+    "Category": "C#",
+    "Title": "if e else",
+    "Keywords": ["if", "else", "condicao", "condição"],
+    "Content": "Use if para testar uma condicao. Se ela for verdadeira, o bloco roda. Use else para o caminho contrario."
+  },
+  {
+    "Category": "Windows Forms",
+    "Title": "Evento Click",
+    "Keywords": ["click", "botao", "botão", "evento"],
+    "Content": "No Windows Forms, o evento Click e o lugar mais comum para colocar a logica de um botao."
+  },
+  {
+    "Category": "Debug",
+    "Title": "Como debugar",
+    "Keywords": ["erro", "debug", "bug", "exception"],
+    "Content": "Leia a mensagem completa, localize a linha, confirme se os controles tem valor e use breakpoint para acompanhar a execucao."
+  },
+  {
+    "Category": "Ideias",
+    "Title": "Projetos para iniciantes",
+    "Keywords": ["ideia", "projeto", "projetos", "app"],
+    "Content": "Bloco de notas, quiz, lista de tarefas, sorteador e agenda simples sao bons projetos de inicio."
+  },
+  {
+    "Category": "C#",
+    "Title": "Variaveis",
+    "Keywords": ["variavel", "variáveis", "variaveis", "string", "int", "double"],
+    "Content": "Guarde texto em string, numero inteiro em int e numero com casas decimais em double ou decimal."
+  },
+  {
+    "Category": "Windows Forms",
+    "Title": "Fluxo basico de tela",
+    "Keywords": ["label", "textbox", "listbox", "combobox", "form"],
+    "Content": "Uma tela basica costuma ter entrada, processamento e saida. Exemplo: TextBox para digitar, Button para executar e Label para mostrar o resultado."
+  }
+]

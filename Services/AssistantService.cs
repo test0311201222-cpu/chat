@@ -1,0 +1,297 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using chat.Models;
+
+namespace chat.Services
+{
+    public class AssistantService
+    {
+        private readonly KnowledgeService knowledgeService;
+        private readonly MemoryService memoryService;
+        private readonly OpenAiResponsesService openAiService;
+        private readonly ConfigService configService;
+        private readonly Random random = new Random();
+
+        public AssistantService(KnowledgeService knowledgeService, MemoryService memoryService, OpenAiResponsesService openAiService, ConfigService configService)
+        {
+            this.knowledgeService = knowledgeService;
+            this.memoryService = memoryService;
+            this.openAiService = openAiService;
+            this.configService = configService;
+        }
+
+        public AssistantMemory LoadMemory()
+        {
+            return memoryService.LoadMemory();
+        }
+
+        public void SaveMemory(AssistantMemory memory)
+        {
+            memoryService.SaveMemory(memory);
+        }
+
+        public bool IsOnlineConfigured()
+        {
+            return openAiService.IsConfigured();
+        }
+
+        public List<KnowledgeItem> LoadKnowledge()
+        {
+            return knowledgeService.LoadKnowledge();
+        }
+
+        public void SaveKnowledge(List<KnowledgeItem> items)
+        {
+            knowledgeService.SaveKnowledge(items);
+        }
+
+        public AppSettings LoadSettings()
+        {
+            return configService.Load();
+        }
+
+        public void SaveSettings(AppSettings settings)
+        {
+            configService.Save(settings);
+        }
+
+        public async Task<AssistantResponse> GetResponseAsync(string userMessage, string mode, AssistantMemory memory)
+        {
+            UpdateMemory(memory, userMessage, mode);
+            memoryService.AppendHistory("user", userMessage);
+
+            AssistantResponse response;
+
+            if (openAiService.IsConfigured())
+            {
+                try
+                {
+                    string onlineText = await openAiService.GenerateAsync(
+                        BuildInstructions(mode, memory),
+                        BuildInput(userMessage, mode, memory));
+
+                    if (!string.IsNullOrWhiteSpace(onlineText))
+                    {
+                        response = new AssistantResponse
+                        {
+                            Text = onlineText.Trim(),
+                            Source = "OpenAI - " + openAiService.GetModelName(),
+                            IsOnline = true
+                        };
+
+                        memoryService.AppendHistory("assistant", response.Text);
+                        memoryService.SaveMemory(memory);
+                        return response;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            response = new AssistantResponse
+            {
+                Text = BuildOfflineResponse(userMessage, mode, memory),
+                Source = "Base local",
+                IsOnline = false
+            };
+
+            memoryService.AppendHistory("assistant", response.Text);
+            memoryService.SaveMemory(memory);
+            return response;
+        }
+
+        public void ClearConversation()
+        {
+            memoryService.ClearHistory();
+        }
+
+        private void UpdateMemory(AssistantMemory memory, string message, string mode)
+        {
+            if (memory == null)
+            {
+                return;
+            }
+
+            memory.LastMode = mode;
+            string lower = (message ?? string.Empty).ToLowerInvariant();
+            string marker = "meu nome e ";
+            int index = lower.IndexOf(marker);
+
+            if (index >= 0)
+            {
+                string name = message.Substring(index + marker.Length).Trim();
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    memory.UserName = name;
+                }
+            }
+
+            if (lower.Contains("c#") && !memory.FavoriteTopics.Contains("C#"))
+            {
+                memory.FavoriteTopics.Add("C#");
+            }
+
+            if (lower.Contains("windows forms") && !memory.FavoriteTopics.Contains("Windows Forms"))
+            {
+                memory.FavoriteTopics.Add("Windows Forms");
+            }
+        }
+
+        private string BuildInstructions(string mode, AssistantMemory memory)
+        {
+            AssistantProfile profile = knowledgeService.LoadProfile();
+            List<KnowledgeItem> knowledge = knowledgeService.LoadKnowledge().Take(4).ToList();
+
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("Voce e " + profile.Name + ".");
+            builder.AppendLine("Papel: " + profile.Role + ".");
+            builder.AppendLine("Tom: " + profile.Tone + ".");
+            builder.AppendLine("Objetivo: " + profile.Goal + ".");
+            builder.AppendLine("Usuario atual: " + memory.UserName + ".");
+            builder.AppendLine("Modo atual: " + mode + ".");
+            builder.AppendLine("Regras:");
+
+            foreach (string rule in profile.Rules)
+            {
+                builder.AppendLine("- " + rule);
+            }
+
+            builder.AppendLine("Quando a duvida for tecnica, responda com passos claros e exemplos pequenos.");
+            builder.AppendLine("Se nao souber, diga o que falta e ofereca um caminho pratico.");
+            builder.AppendLine("Nao finja acesso a coisas que voce nao tem.");
+            builder.AppendLine("Trechos de conhecimento local relevantes:");
+
+            foreach (KnowledgeItem item in knowledge)
+            {
+                builder.AppendLine(item.Title + ": " + item.Content);
+            }
+
+            return builder.ToString();
+        }
+
+        private string BuildInput(string userMessage, string mode, AssistantMemory memory)
+        {
+            List<KnowledgeItem> relevantKnowledge = knowledgeService.Search(userMessage, mode);
+            List<ConversationTurn> history = memoryService.LoadHistory();
+            List<ConversationTurn> recent = history.Skip(Math.Max(0, history.Count - 8)).ToList();
+
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("Contexto do app:");
+            builder.AppendLine("- nome do usuario: " + memory.UserName);
+            builder.AppendLine("- modo selecionado: " + mode);
+            builder.AppendLine("- topicos favoritos: " + string.Join(", ", memory.FavoriteTopics));
+            builder.AppendLine();
+            builder.AppendLine("Historico recente:");
+
+            foreach (ConversationTurn turn in recent)
+            {
+                builder.AppendLine(turn.Role + ": " + turn.Message);
+            }
+
+            builder.AppendLine();
+            builder.AppendLine("Conhecimento local relevante:");
+
+            foreach (KnowledgeItem item in relevantKnowledge)
+            {
+                builder.AppendLine(item.Title + " - " + item.Content);
+            }
+
+            builder.AppendLine();
+            builder.AppendLine("Pergunta atual do usuario:");
+            builder.AppendLine(userMessage);
+
+            return builder.ToString();
+        }
+
+        private string BuildOfflineResponse(string userMessage, string mode, AssistantMemory memory)
+        {
+            string lower = (userMessage ?? string.Empty).ToLowerInvariant();
+            List<KnowledgeItem> knowledge = knowledgeService.Search(userMessage, mode);
+
+            if (lower.Contains("seu nome"))
+            {
+                return "Eu sou o Codex Local. Nesta versao eu uso memoria, historico, base de conhecimento e, se houver chave, tambem modelo online.";
+            }
+
+            if (lower.Contains("meu nome"))
+            {
+                return "Beleza, " + memory.UserName + ". Vou lembrar disso enquanto usamos o aplicativo.";
+            }
+
+            if (lower.Contains("if") && lower.Contains("else"))
+            {
+                return "if testa uma condicao. else e o caminho alternativo.\r\n\r\nExemplo:\r\nif (txtNome.Text == \"\")\r\n{\r\n    MessageBox.Show(\"Digite o nome\");\r\n}\r\nelse\r\n{\r\n    lblResultado.Text = \"Ola\";\r\n}";
+            }
+
+            if (lower.Contains("debug") || lower.Contains("erro") || lower.Contains("bug"))
+            {
+                return "Roteiro de debug:\r\n1. Leia a mensagem completa.\r\n2. Veja em qual evento aconteceu.\r\n3. Confirme se algum controle esta vazio.\r\n4. Teste com valor simples.\r\n5. Use breakpoint e F10.\r\n\r\nSe quiser, cola o erro exato e eu monto uma analise melhor.";
+            }
+
+            if (lower.Contains("ideia") || lower.Contains("projeto"))
+            {
+                return GetProjectIdea();
+            }
+
+            if (lower.Contains("c#") || lower.Contains("windows forms") || lower.Contains("winforms"))
+            {
+                return "Para estudar melhor no WinForms: controles, eventos, validacao, listagem e pequenos projetos completos. Posso te explicar um por vez ou montar codigo pronto.";
+            }
+
+            if (knowledge.Count > 0)
+            {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendLine("Encontrei isso na base local:");
+
+                foreach (KnowledgeItem item in knowledge)
+                {
+                    builder.AppendLine();
+                    builder.AppendLine(item.Title);
+                    builder.AppendLine(item.Content);
+                }
+
+                builder.AppendLine();
+                builder.Append("Se quiser, eu tambem posso transformar isso em passo a passo.");
+                return builder.ToString();
+            }
+
+            switch (mode)
+            {
+                case "Professor":
+                    return "Modo Professor:\r\nQuebre o problema em entrada, processamento e saida. Me diga o que entra no programa, o que ele faz e o que mostra na tela.";
+
+                case "Debug":
+                    return "Modo Debug:\r\nMe diga o texto do erro, em qual botao ele acontece e o que voce esperava que acontecesse.";
+
+                case "C#":
+                    return "Modo C#:\r\nPosso te responder com exemplo de variavel, if, metodo, evento, classe e loop. Seja especifico e eu monto um exemplo.";
+
+                case "Windows Forms":
+                    return "Modo Windows Forms:\r\nPosso te ajudar com Name dos controles, eventos Click, MessageBox, Label, TextBox, ListBox e Designer.";
+
+                case "Ideias":
+                    return GetProjectIdea();
+
+                default:
+                    return "Ainda nao tenho uma resposta forte para isso na base local. Se configurar OPENAI_API_KEY, este assistente passa a usar modelo online junto com a memoria e o conhecimento local.";
+            }
+        }
+
+        private string GetProjectIdea()
+        {
+            string[] ideas =
+            {
+                "App: bloco de notas com salvar e limpar.\r\nTreina TextBox grande, Button e arquivo.",
+                "App: quiz de perguntas.\r\nTreina Label, RadioButton, Button e contador.",
+                "App: lista de tarefas.\r\nTreina TextBox, ListBox e remocao de itens.",
+                "App: gerador de estudos do dia.\r\nTreina ComboBox, Random e Label."
+            };
+
+            return ideas[random.Next(ideas.Length)];
+        }
+    }
+}
