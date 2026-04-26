@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using chat.Models;
 
 namespace chat.Services
@@ -24,10 +26,10 @@ namespace chat.Services
         {
             return storage.Load(profilePath, new AssistantProfile
             {
-                Name = "Codex Local",
-                Role = "Assistente",
-                Tone = "claro e prestativo",
-                Goal = "Ajudar no estudo",
+                Name = "Nira",
+                Role = "assistente pessoal local",
+                Tone = "humano e claro",
+                Goal = "ajudar o usuario em conversa geral, estudo e projetos",
                 Rules = new List<string>()
             });
         }
@@ -44,16 +46,83 @@ namespace chat.Services
 
         public List<KnowledgeItem> Search(string message, string mode)
         {
-            string text = (message ?? string.Empty).ToLowerInvariant();
-            string currentMode = (mode ?? string.Empty).ToLowerInvariant();
+            string text = Normalize(message);
+            string currentMode = Normalize(mode);
             List<KnowledgeItem> items = LoadKnowledge();
 
             return items
-                .Where(item =>
-                    item.Keywords.Any(keyword => text.Contains(keyword.ToLowerInvariant())) ||
-                    (!string.IsNullOrWhiteSpace(item.Category) && item.Category.ToLowerInvariant() == currentMode))
-                .Take(3)
+                .Select(item => new
+                {
+                    Item = item,
+                    Score = GetScore(item, text, currentMode)
+                })
+                .Where(result => result.Score > 0)
+                .OrderByDescending(result => result.Score)
+                .ThenBy(result => result.Item.Title)
+                .Take(4)
+                .Select(result => result.Item)
                 .ToList();
+        }
+
+        private int GetScore(KnowledgeItem item, string text, string currentMode)
+        {
+            int score = 0;
+            string title = Normalize(item.Title);
+            string category = Normalize(item.Category);
+
+            if (title != string.Empty && (text == title || text.Contains(title)))
+            {
+                score += 7;
+            }
+
+            foreach (string keyword in item.Keywords)
+            {
+                string normalizedKeyword = Normalize(keyword);
+
+                if (normalizedKeyword == string.Empty)
+                {
+                    continue;
+                }
+
+                if (text == normalizedKeyword)
+                {
+                    score += 8;
+                }
+                else if (text.Contains(normalizedKeyword))
+                {
+                    score += normalizedKeyword.Contains(" ") ? 5 : 3;
+                }
+            }
+
+            if (category == currentMode && currentMode != string.Empty && currentMode != "geral")
+            {
+                score += 1;
+            }
+
+            return score;
+        }
+
+        private string Normalize(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            string normalized = value.ToLowerInvariant().Normalize(NormalizationForm.FormD);
+            StringBuilder builder = new StringBuilder();
+
+            foreach (char character in normalized)
+            {
+                UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(character);
+
+                if (category != UnicodeCategory.NonSpacingMark)
+                {
+                    builder.Append(character);
+                }
+            }
+
+            return builder.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }

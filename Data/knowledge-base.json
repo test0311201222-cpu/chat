@@ -1,45 +1,9 @@
 [
   {
-    "Category": "C#",
-    "Title": "if e else",
-    "Keywords": ["if", "else", "condicao", "condição"],
-    "Content": "Use if para testar uma condicao. Se ela for verdadeira, o bloco roda. Use else para o caminho contrario."
-  },
-  {
-    "Category": "Windows Forms",
-    "Title": "Evento Click",
-    "Keywords": ["click", "botao", "botão", "evento"],
-    "Content": "No Windows Forms, o evento Click e o lugar mais comum para colocar a logica de um botao."
-  },
-  {
-    "Category": "Debug",
-    "Title": "Como debugar",
-    "Keywords": ["erro", "debug", "bug", "exception"],
-    "Content": "Leia a mensagem completa, localize a linha, confirme se os controles tem valor e use breakpoint para acompanhar a execucao."
-  },
-  {
-    "Category": "Ideias",
-    "Title": "Projetos para iniciantes",
-    "Keywords": ["ideia", "projeto", "projetos", "app"],
-    "Content": "Bloco de notas, quiz, lista de tarefas, sorteador e agenda simples sao bons projetos de inicio."
-  },
-  {
-    "Category": "C#",
-    "Title": "Variaveis",
-    "Keywords": ["variavel", "variáveis", "variaveis", "string", "int", "double"],
-    "Content": "Guarde texto em string, numero inteiro em int e numero com casas decimais em double ou decimal."
-  },
-  {
-    "Category": "Windows Forms",
-    "Title": "Fluxo basico de tela",
-    "Keywords": ["label", "textbox", "listbox", "combobox", "form"],
-    "Content": "Uma tela basica costuma ter entrada, processamento e saida. Exemplo: TextBox para digitar, Button para executar e Label para mostrar o resultado."
-  },
-  {
     "Category": "Geral",
     "Title": "Saudacoes casuais",
-    "Keywords": ["opa", "oi", "ola", "e ai", "salve", "blz"],
-    "Content": "Quando a mensagem for casual, responda de forma natural, curta e amigavel, oferecendo ajuda sem parecer robotico."
+    "Keywords": ["opa", "oi", "ola", "e ai", "salve", "blz", "beleza"],
+    "Content": "Quando a mensagem for casual, responda de forma natural, curta e amigavel, oferecendo ajuda sem parecer robotica."
   },
   {
     "Category": "Geral",
@@ -50,7 +14,235 @@
   {
     "Category": "Geral",
     "Title": "Identidade da assistente",
-    "Keywords": ["quem e voce", "seu nome", "o que voce faz"],
+    "Keywords": ["quem e voce", "seu nome", "o que voce faz", "o que vc faz"],
     "Content": "A assistente se chama Nira. Ela conversa de forma geral, ajuda em estudo, organiza ideias e apoia projetos em C# e Windows Forms."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Procrastinacao",
+    "Keywords": ["procrastinacao", "procrastinando", "adiando", "nao consigo comecar"],
+    "Content": "Quando a pessoa estiver procrastinando, ajude a reduzir a meta para uma tarefa de 5 a 10 minutos. Comecar pequeno costuma quebrar a resistencia inicial."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Foco",
+    "Keywords": ["foco", "concentracao", "concentrar", "distraido", "distraida"],
+    "Content": "Para recuperar foco, vale tirar estimulos da frente, definir uma tarefa unica e trabalhar em blocos curtos, como 20 ou 25 minutos."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Organizacao",
+    "Keywords": ["organizar", "organizacao", "bagunca", "rotina", "planejamento"],
+    "Content": "Quando tudo estiver baguncado, ajude a listar o que e urgente, o que e importante e qual e o proximo passo concreto."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Ansiedade leve",
+    "Keywords": ["ansiedade", "ansioso", "ansiosa", "nervoso", "nervosa"],
+    "Content": "Se a pessoa estiver ansiosa, mantenha o tom calmo, traga a conversa para o presente e proponha uma acao pequena que devolva sensacao de controle."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Desanimo",
+    "Keywords": ["desanimado", "desanimada", "sem vontade", "sem energia"],
+    "Content": "Quando houver desanimo, nao cobre demais. Valide o cansaco e sugira fechar so uma parte pequena da tarefa de hoje."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Autoconfianca",
+    "Keywords": ["confianca", "inseguro", "insegura", "duvido de mim", "capaz"],
+    "Content": "Se a pessoa estiver insegura, lembre o que ela ja conseguiu fazer e ajude a transformar o problema em partes menores e mais visiveis."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Tomada de decisao",
+    "Keywords": ["decisao", "decidir", "escolha", "duvida entre", "qual escolho"],
+    "Content": "Para decidir melhor, compare tres coisas: impacto, esforco e reversibilidade. Escolhas reversiveis podem ser testadas sem tanto medo."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Sono",
+    "Keywords": ["sono", "dormir", "insomnia", "insomnia", "acordado"],
+    "Content": "Se a pessoa estiver falando de sono ruim, sugira reduzir estimulo, luz e tela perto da hora de dormir e procurar rotina mais estavel."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Estudo eficiente",
+    "Keywords": ["como estudar", "estudar melhor", "aprender", "revisao", "memorizacao"],
+    "Content": "Para estudar melhor, misture pratica, revisao curta e repeticao espaçada. Ler sozinho ajuda menos do que fazer e testar."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Habitos",
+    "Keywords": ["habito", "habitos", "constancia", "disciplina"],
+    "Content": "Habito fica mais forte quando a acao e pequena, frequente e ligada a um gatilho claro no dia."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Criatividade",
+    "Keywords": ["criatividade", "bloqueio criativo", "sem ideia", "sem criatividade"],
+    "Content": "Quando faltar ideia, troque quantidade por variedade: anote ideias ruins tambem, mude o contexto e combine referencias diferentes."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Amizade",
+    "Keywords": ["amizade", "amigo", "amiga", "amizades"],
+    "Content": "Em amizade, clareza e constancia costumam valer mais do que grandes gestos. Escutar bem ajuda mais do que tentar resolver tudo."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Conversa dificil",
+    "Keywords": ["conversa dificil", "discussao", "briga", "falar com alguem", "resolver com alguem"],
+    "Content": "Para conversa dificil, vale falar do proprio ponto de vista sem acusar, ser especifico e dizer o que gostaria que mudasse."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Frustracao",
+    "Keywords": ["frustrado", "frustrada", "frustracao", "deu errado"],
+    "Content": "Quando algo der errado, primeiro separe o que foi erro de execucao, o que foi expectativa alta e o que estava fora do controle."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Tempo livre",
+    "Keywords": ["tedio", "to sem fazer nada", "bored", "entediado", "entediada"],
+    "Content": "Se a pessoa estiver no tedio, sugira algo curto e concreto: caminhar, arrumar um canto, ver algo pequeno ou começar uma microtarefa criativa."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Motivacao",
+    "Keywords": ["motivacao", "motivado", "motivada", "me anima"],
+    "Content": "Motivacao oscila. Quando ela falhar, o que segura o dia e um plano pequeno, claro e executavel."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Dinheiro basico",
+    "Keywords": ["dinheiro", "economizar", "gastar", "grana", "orcamento"],
+    "Content": "Para organizar dinheiro, comece vendo entradas, saidas fixas e gastos escapando. Sem enxergar isso, qualquer plano fica vago."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Saude basica",
+    "Keywords": ["saude", "agua", "comer melhor", "cuidar de mim", "exercicio"],
+    "Content": "Em saude do dia a dia, pequenas rotinas contam muito: agua, sono, alguma movimentacao e refeicoes menos caoticas."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Aprender tecnologia",
+    "Keywords": ["tecnologia", "programacao", "programar", "desenvolvimento", "como aprender codigo"],
+    "Content": "Para aprender tecnologia, pratica pequena e frequente costuma render mais do que esperar estar pronto para um projeto enorme."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Objetivos",
+    "Keywords": ["meta", "objetivo", "objetivos", "planejar meta"],
+    "Content": "Meta boa e clara, mensuravel e pequena o bastante para ter proximo passo ainda hoje."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Autocuidado",
+    "Keywords": ["autocuidado", "me cuidar", "cuidar de mim", "exausto", "exausta"],
+    "Content": "Autocuidado nao precisa ser grandioso. As vezes significa so parar, respirar, comer, beber agua e reduzir a exigencia por uma hora."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Sobrepensar",
+    "Keywords": ["pensando demais", "overthinking", "ruminando", "nao paro de pensar"],
+    "Content": "Se a cabeca estiver girando em circulos, ajude a separar o que precisa de decisao agora do que e so repeticao mental sem ganho."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Luto e perdas",
+    "Keywords": ["perdi alguem", "saudade", "luto", "perda"],
+    "Content": "Quando a conversa tocar em perda, responda com delicadeza. Nao tente consertar a dor; acompanhe, reconheca e ofereca presenca."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Pedir desculpa",
+    "Keywords": ["desculpa", "me desculpar", "errei com alguem", "pedir perdao"],
+    "Content": "Boa desculpa reconhece o erro sem se justificar demais, mostra impacto e diz o que vai mudar dali em diante."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Receber critica",
+    "Keywords": ["critica", "me criticaram", "feedback duro", "levei bronca"],
+    "Content": "Critica doi mais quando vira identidade. Ajude a separar o que e dado util do que e tom ruim ou julgamento exagerado."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Introducao a IA",
+    "Keywords": ["o que e ia", "inteligencia artificial", "como ia funciona", "como funciona ia"],
+    "Content": "IA e um conjunto de tecnicas para reconhecer padroes, prever respostas e automatizar tarefas. Nem toda IA entende o mundo; muitas apenas estimam a melhor saida."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Internet",
+    "Keywords": ["o que e internet", "internet", "como funciona internet"],
+    "Content": "A internet e uma rede mundial de computadores trocando dados por protocolos em comum. Sites, apps e servicos funcionam em cima dessa troca."
+  },
+  {
+    "Category": "Geral",
+    "Title": "Vida adulta",
+    "Keywords": ["vida adulta", "responsabilidade", "nao sei o que fazer da vida"],
+    "Content": "Na vida adulta, quase tudo melhora quando voce organiza o basico: tempo, dinheiro, energia e uma direcao pequena para a semana."
+  },
+  {
+    "Category": "C#",
+    "Title": "if e else",
+    "Keywords": ["if", "else", "condicao", "condicao if", "condicional"],
+    "Content": "Use if para testar uma condicao. Se ela for verdadeira, o bloco roda. Use else para o caminho contrario."
+  },
+  {
+    "Category": "C#",
+    "Title": "Variaveis",
+    "Keywords": ["variavel", "variaveis", "string", "int", "double", "decimal"],
+    "Content": "Guarde texto em string, numero inteiro em int e numero com casas decimais em double ou decimal, dependendo da precisao desejada."
+  },
+  {
+    "Category": "C#",
+    "Title": "Metodos",
+    "Keywords": ["metodo", "metodos", "funcao", "funcao c#"],
+    "Content": "Metodo e um bloco reutilizavel de codigo. Ele ajuda a organizar a logica e evitar repeticao."
+  },
+  {
+    "Category": "C#",
+    "Title": "Loop",
+    "Keywords": ["for", "while", "loop", "repeticao", "repetir"],
+    "Content": "Use loop quando precisar repetir uma acao. for funciona bem quando voce sabe quantas vezes vai repetir."
+  },
+  {
+    "Category": "Windows Forms",
+    "Title": "Evento Click",
+    "Keywords": ["click", "botao", "evento", "clicar"],
+    "Content": "No Windows Forms, o evento Click e o lugar mais comum para colocar a logica de um botao."
+  },
+  {
+    "Category": "Windows Forms",
+    "Title": "Fluxo basico de tela",
+    "Keywords": ["label", "textbox", "listbox", "combobox", "form"],
+    "Content": "Uma tela basica costuma ter entrada, processamento e saida. Exemplo: TextBox para digitar, Button para executar e Label para mostrar o resultado."
+  },
+  {
+    "Category": "Windows Forms",
+    "Title": "Validacao",
+    "Keywords": ["validacao", "validar", "campo vazio", "messagebox"],
+    "Content": "Antes de processar, verifique se os campos obrigatorios foram preenchidos. Quando faltar algo, explique claramente ao usuario."
+  },
+  {
+    "Category": "Debug",
+    "Title": "Como debugar",
+    "Keywords": ["erro", "debug", "bug", "exception"],
+    "Content": "Leia a mensagem completa, localize a linha, confirme se os controles tem valor e use breakpoint para acompanhar a execucao."
+  },
+  {
+    "Category": "Debug",
+    "Title": "NullReference",
+    "Keywords": ["nullreference", "objeto nulo", "referencia nula"],
+    "Content": "Esse erro costuma acontecer quando voce usa um objeto que ainda nao foi criado ou veio vazio. Veja qual variavel esta nula antes da linha quebrar."
+  },
+  {
+    "Category": "Ideias",
+    "Title": "Projetos para iniciantes",
+    "Keywords": ["ideia", "projeto", "projetos", "app"],
+    "Content": "Bloco de notas, quiz, lista de tarefas, sorteador e agenda simples sao bons projetos de inicio."
   }
 ]

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -124,7 +125,7 @@ namespace chat.Services
             }
 
             memory.LastMode = mode;
-            string lower = (message ?? string.Empty).ToLowerInvariant();
+            string lower = Normalize(message);
             string marker = "meu nome e ";
             int index = lower.IndexOf(marker);
 
@@ -137,21 +138,60 @@ namespace chat.Services
                 }
             }
 
-            if (lower.Contains("c#") && !memory.FavoriteTopics.Contains("C#"))
+            if (lower.Contains("c#"))
             {
-                memory.FavoriteTopics.Add("C#");
+                AddUnique(memory.FavoriteTopics, "C#");
+                AddUnique(memory.RecentTopics, "codigo");
             }
 
-            if (lower.Contains("windows forms") && !memory.FavoriteTopics.Contains("Windows Forms"))
+            if (lower.Contains("windows forms") || lower.Contains("winforms"))
             {
-                memory.FavoriteTopics.Add("Windows Forms");
+                AddUnique(memory.FavoriteTopics, "Windows Forms");
+                AddUnique(memory.RecentTopics, "interface");
+            }
+
+            if (lower.Contains("estudo"))
+            {
+                AddUnique(memory.RecentTopics, "estudo");
+            }
+
+            if (lower.Contains("projeto") || lower.Contains("ideia"))
+            {
+                AddUnique(memory.RecentTopics, "projeto");
+            }
+
+            if (lower.Contains("trabalho"))
+            {
+                AddUnique(memory.RecentTopics, "trabalho");
+            }
+
+            if (lower.Contains("triste"))
+            {
+                memory.LastMood = "triste";
+            }
+            else if (lower.Contains("ansioso"))
+            {
+                memory.LastMood = "ansioso";
+            }
+            else if (lower.Contains("desanimado"))
+            {
+                memory.LastMood = "desanimado";
+            }
+            else if (lower.Contains("feliz") || lower.Contains("animado"))
+            {
+                memory.LastMood = "animado";
+            }
+
+            if (memory.RecentTopics.Count > 8)
+            {
+                memory.RecentTopics = memory.RecentTopics.Skip(memory.RecentTopics.Count - 8).ToList();
             }
         }
 
         private string BuildInstructions(string mode, AssistantMemory memory)
         {
             AssistantProfile profile = knowledgeService.LoadProfile();
-            List<KnowledgeItem> knowledge = knowledgeService.LoadKnowledge().Take(4).ToList();
+            List<KnowledgeItem> knowledge = knowledgeService.LoadKnowledge().Take(6).ToList();
 
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("Voce e " + profile.Name + ".");
@@ -160,6 +200,7 @@ namespace chat.Services
             builder.AppendLine("Objetivo: " + profile.Goal + ".");
             builder.AppendLine("Usuario atual: " + memory.UserName + ".");
             builder.AppendLine("Modo atual: " + mode + ".");
+            builder.AppendLine("Temas favoritos do usuario: " + string.Join(", ", memory.FavoriteTopics) + ".");
             builder.AppendLine("Regras:");
 
             foreach (string rule in profile.Rules)
@@ -168,8 +209,8 @@ namespace chat.Services
             }
 
             builder.AppendLine("Quando a duvida for tecnica, responda com passos claros e exemplos pequenos.");
-            builder.AppendLine("Se nao souber, diga o que falta e ofereca um caminho pratico.");
-            builder.AppendLine("Nao finja acesso a coisas que voce nao tem.");
+            builder.AppendLine("Quando a conversa for casual, responda de forma humana e natural.");
+            builder.AppendLine("Se nao souber, diga isso com sinceridade e peca contexto.");
             builder.AppendLine("Trechos de conhecimento local relevantes:");
 
             foreach (KnowledgeItem item in knowledge)
@@ -191,6 +232,8 @@ namespace chat.Services
             builder.AppendLine("- nome do usuario: " + memory.UserName);
             builder.AppendLine("- modo selecionado: " + mode);
             builder.AppendLine("- topicos favoritos: " + string.Join(", ", memory.FavoriteTopics));
+            builder.AppendLine("- assuntos recentes: " + string.Join(", ", memory.RecentTopics));
+            builder.AppendLine("- ultimo humor percebido: " + memory.LastMood);
             builder.AppendLine();
             builder.AppendLine("Historico recente:");
 
@@ -216,9 +259,10 @@ namespace chat.Services
 
         private string BuildOfflineResponse(string userMessage, string mode, AssistantMemory memory)
         {
-            string lower = (userMessage ?? string.Empty).ToLowerInvariant();
+            string lower = Normalize(userMessage);
             List<KnowledgeItem> knowledge = knowledgeService.Search(userMessage, mode);
-            List<ConversationTurn> recent = memoryService.LoadHistory().Skip(Math.Max(0, memoryService.LoadHistory().Count - 6)).ToList();
+            List<ConversationTurn> history = memoryService.LoadHistory();
+            List<ConversationTurn> recent = history.Skip(Math.Max(0, history.Count - 6)).ToList();
             string assistantName = LoadProfile().Name;
 
             if (IsGreeting(lower))
@@ -228,12 +272,12 @@ namespace chat.Services
 
             if (IsShortCheckIn(lower))
             {
-                return "To aqui com voce, " + memory.UserName + ". Se quiser, a gente pode bater papo normal ou entrar em codigo, projeto, estudo, ideia ou debug.";
+                return "To aqui com voce, " + memory.UserName + ". Se quiser, a gente pode bater papo normal, falar de vida, estudar ou mexer em projeto.";
             }
 
             if (lower.Contains("seu nome"))
             {
-                return "Eu sou a " + assistantName + ". Sou a assistente desse projeto, com memoria local, historico e base de conhecimento editavel.";
+                return "Eu sou a " + assistantName + ". Sou a assistente local desse projeto e tento conversar de forma natural, alem de ajudar em estudo e codigo.";
             }
 
             if (lower.Contains("meu nome"))
@@ -243,7 +287,12 @@ namespace chat.Services
 
             if (lower.Contains("quem e voce") || lower.Contains("o que voce faz") || lower.Contains("o que vc faz"))
             {
-                return "Eu sou a " + assistantName + ". Posso conversar de forma geral, ajudar com ideias, organizar explicacoes, responder duvidas de estudo e dar suporte em C# e Windows Forms.";
+                return "Eu sou a " + assistantName + ". Posso conversar de forma geral, ajudar com ideias, organizacao, estudo, codigo e projetos.";
+            }
+
+            if (lower.Contains("quem sou eu") || lower.Contains("o que voce lembra"))
+            {
+                return BuildMemorySummary(memory);
             }
 
             if (lower.Contains("obrigad") || lower.Contains("valeu"))
@@ -256,29 +305,29 @@ namespace chat.Services
                 return "Fechou. Quando voltar, eu continuo de onde paramos.";
             }
 
-            if (lower.Contains("boa tarde") || lower.Contains("bom dia") || lower.Contains("boa noite"))
-            {
-                return "Boa. Como voce quer seguir agora: conversa normal, projeto novo ou ajuda tecnica?";
-            }
-
             if (lower.Contains("tudo bem") || lower.Contains("como voce ta") || lower.Contains("como voce esta"))
             {
-                return "Estou bem e pronta para ajudar. E voce, quer descontrair um pouco ou resolver alguma coisa agora?";
+                return "Estou bem e pronta para ajudar. E voce, quer conversar de boa ou resolver alguma coisa agora?";
             }
 
-            if (lower.Contains("triste") || lower.Contains("desanimado") || lower.Contains("ansioso"))
+            if (lower.Contains("triste") || lower.Contains("desanimado") || lower.Contains("ansioso") || lower.Contains("cansado"))
             {
-                return "Entendo. Quando a cabeca pesa, vale baixar a meta do momento. Em vez de pensar no projeto inteiro, escolhe uma coisa pequena para fechar agora e eu te acompanho nela.";
+                return "Entendo. Quando a cabeca pesa, vale baixar a meta do momento. Em vez de pensar em tudo de uma vez, escolhe uma acao pequena e eu te acompanho nela.";
             }
 
-            if (lower.Contains("o que eu faço") || lower.Contains("to perdido") || lower.Contains("estou perdido"))
+            if (lower.Contains("o que eu faco") || lower.Contains("to perdido") || lower.Contains("estou perdido"))
             {
                 return "Se voce estiver perdido, faz assim:\r\n1. me diga o objetivo\r\n2. me diga o que ja tem\r\n3. me diga onde travou\r\n\r\nCom isso eu consigo te puxar para frente sem te enrolar.";
             }
 
-            if (lower.Contains("opa"))
+            if (lower.Contains("memoria") || lower.Contains("lembrar"))
             {
-                return "Opa. To por aqui. Manda o que voce precisa que eu entro junto.";
+                return "Hoje eu lembro do seu nome, do modo atual, de temas que voce costuma tocar, de alguns assuntos recentes e do clima geral da conversa.";
+            }
+
+            if (lower.Contains("como funciona"))
+            {
+                return "Eu funciono em camadas: perfil, memoria, historico, base de conhecimento e motor de resposta. Sem API online, eu fico totalmente offline usando essas camadas.";
             }
 
             if (lower.Contains("if") && lower.Contains("else"))
@@ -301,31 +350,9 @@ namespace chat.Services
                 return "Para estudar melhor no WinForms: controles, eventos, validacao, listagem e pequenos projetos completos. Posso te explicar um por vez ou montar codigo pronto.";
             }
 
-            if (lower.Contains("memoria") || lower.Contains("lembrar"))
-            {
-                return "Hoje eu lembro do seu nome, do modo atual, de alguns topicos que voce curte e de um historico recente da conversa. Isso ja ajuda a resposta a ficar menos solta.";
-            }
-
-            if (lower.Contains("como funciona"))
-            {
-                return "Eu funciono em camadas: perfil, memoria, historico, base de conhecimento e motor de resposta. Quando a API online nao esta disponivel, eu uso tudo isso para responder offline.";
-            }
-
             if (knowledge.Count > 0)
             {
-                StringBuilder builder = new StringBuilder();
-                builder.AppendLine("Encontrei isso na base local:");
-
-                foreach (KnowledgeItem item in knowledge)
-                {
-                    builder.AppendLine();
-                    builder.AppendLine(item.Title);
-                    builder.AppendLine(item.Content);
-                }
-
-                builder.AppendLine();
-                builder.Append("Se quiser, eu tambem posso transformar isso em passo a passo.");
-                return builder.ToString();
+                return BuildKnowledgeResponse(knowledge, lower);
             }
 
             if (lower.Contains("isso") || lower.Contains("esse") || lower.Contains("essa"))
@@ -372,6 +399,31 @@ namespace chat.Services
             return ideas[random.Next(ideas.Length)];
         }
 
+        private string BuildKnowledgeResponse(List<KnowledgeItem> knowledge, string lower)
+        {
+            KnowledgeItem first = knowledge.First();
+
+            if (knowledge.Count == 1)
+            {
+                return first.Content;
+            }
+
+            if (lower.Contains("dicas") || lower.Contains("melhorar") || lower.Contains("ajuda"))
+            {
+                StringBuilder tips = new StringBuilder();
+                tips.AppendLine("Posso te orientar por este caminho:");
+
+                foreach (KnowledgeItem item in knowledge)
+                {
+                    tips.AppendLine("- " + item.Content);
+                }
+
+                return tips.ToString().Trim();
+            }
+
+            return first.Content + "\r\n\r\nSe quiser, eu tambem posso aprofundar por este lado: " + string.Join(", ", knowledge.Skip(1).Select(item => item.Title.ToLowerInvariant())) + ".";
+        }
+
         private string SummarizeApiError(string message)
         {
             string text = (message ?? string.Empty).ToLowerInvariant();
@@ -408,7 +460,7 @@ namespace chat.Services
         {
             string[] greetings =
             {
-                "oi", "ola", "olá", "opa", "e ai", "eae", "salve", "hey", "hello", "boa tarde", "bom dia", "boa noite"
+                "oi", "ola", "opa", "e ai", "eae", "salve", "hey", "hello", "bom dia", "boa tarde", "boa noite"
             };
 
             return greetings.Any(item => lower == item || lower.StartsWith(item + " "));
@@ -439,6 +491,7 @@ namespace chat.Services
         private string GetLastUserTopic(List<ConversationTurn> recent)
         {
             ConversationTurn lastUser = recent.LastOrDefault(item => item.Role == "user");
+
             if (lastUser == null || string.IsNullOrWhiteSpace(lastUser.Message))
             {
                 return string.Empty;
@@ -448,16 +501,72 @@ namespace chat.Services
             return message.Length > 40 ? message.Substring(0, 40) + "..." : message;
         }
 
+        private string BuildMemorySummary(AssistantMemory memory)
+        {
+            StringBuilder summary = new StringBuilder();
+            summary.AppendLine("O que eu lembro agora:");
+            summary.AppendLine("- seu nome: " + memory.UserName);
+            summary.AppendLine("- ultimo modo: " + memory.LastMode);
+
+            if (memory.FavoriteTopics.Count > 0)
+            {
+                summary.AppendLine("- temas que voce costuma tocar: " + string.Join(", ", memory.FavoriteTopics));
+            }
+
+            if (memory.RecentTopics.Count > 0)
+            {
+                summary.AppendLine("- assuntos recentes: " + string.Join(", ", memory.RecentTopics));
+            }
+
+            if (!string.IsNullOrWhiteSpace(memory.LastMood))
+            {
+                summary.AppendLine("- clima recente: " + memory.LastMood);
+            }
+
+            return summary.ToString().Trim();
+        }
+
         private string GetGeneralFallback(AssistantMemory memory, List<ConversationTurn> recent)
         {
             string previousTopic = GetLastUserTopic(recent);
 
-            if (previousTopic != string.Empty)
+            if (previousTopic != string.Empty && !IsGreeting(Normalize(previousTopic)))
             {
                 return "Ainda nao saquei totalmente o que voce quis dizer, " + memory.UserName + ". A ultima pista que eu tenho e `" + previousTopic + "`. Se voce reformular em uma frase, eu tento responder melhor.";
             }
 
-            return "Consigo conversar de forma geral tambem. Se quiser, me fala o que voce esta pensando, sentindo ou tentando fazer, que eu respondo num tom mais humano ou mais tecnico.";
+            return "Consigo conversar de forma geral tambem. Me fala o que voce esta pensando, sentindo ou tentando fazer, que eu respondo num tom mais humano ou mais tecnico.";
+        }
+
+        private void AddUnique(List<string> list, string value)
+        {
+            if (!list.Contains(value))
+            {
+                list.Add(value);
+            }
+        }
+
+        private string Normalize(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            string normalized = value.ToLowerInvariant().Normalize(NormalizationForm.FormD);
+            StringBuilder builder = new StringBuilder();
+
+            foreach (char character in normalized)
+            {
+                UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(character);
+
+                if (category != UnicodeCategory.NonSpacingMark)
+                {
+                    builder.Append(character);
+                }
+            }
+
+            return builder.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }
